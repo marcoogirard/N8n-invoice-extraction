@@ -1,0 +1,935 @@
+{
+  "name": "Extraction Factures PDF/Image vers Excel",
+  "nodes": [
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.name.split('.').pop() }}",
+                    "rightValue": "jpg",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "903b235d-303c-4ad7-85dc-cb21980341c1"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "JPG"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "6ab306e1-1c0c-4e9b-b3bc-e8108987051d",
+                    "leftValue": "={{ $binary.data.fileExtension }}",
+                    "rightValue": "png",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "PNG"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "af5b78b8-20af-4b4e-8f50-05fe4d32851c",
+                    "leftValue": "={{ $binary.data.fileExtension }}",
+                    "rightValue": "pdf",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "pdf"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "4b58395d-af75-4544-a172-89177c74e682",
+                    "leftValue": "={{ $binary.data.fileExtension }}",
+                    "rightValue": "jpeg",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "jpeg"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "4ece626f-298e-4196-99d8-d53a78aed862",
+                    "leftValue": "={{ $binary.data.fileExtension }}",
+                    "rightValue": "PDF",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "PDF"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        1520,
+        -352
+      ],
+      "id": "946642f5-b81b-4c32-ac87-581496005654",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        1952,
+        -192
+      ],
+      "id": "ccdcbb8e-77eb-4f0e-b20d-1d720a38d8e2",
+      "name": "Extract from File",
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "text": "={{ $json.text }}",
+        "attributes": {
+          "attributes": [
+            {
+              "name": "type_facture",
+              "description": "Détermine s'il s'agit d'une facture de \"Débit\" ou \"Crédit\". [nom du vigneron] est le client final pour un achat mais il est le fournisseur (crédit) pour une vente de bouteilles de vin. Si le texte fourni est celui d'un ticket de caisse ce sera forcément une dépense (débit). ",
+              "required": true
+            },
+            {
+              "name": "entite_principale",
+              "description": "Nom du fournisseur (si achat) ou nom du client (si vente). L'entité principale ne sera donc jamais [nom du vigneron]. "
+            },
+            {
+              "name": "date",
+              "description": "Date de la facture au format JJ/MM/AAAA.",
+              "required": true
+            },
+            {
+              "name": "numero_facture",
+              "description": "Le numéro unique d'identification de la facture."
+            },
+            {
+              "name": "montant_ht",
+              "type": "number",
+              "description": "Montant total Hors Taxes (nombre uniquement, ex: 120.50).",
+              "required": true
+            },
+            {
+              "name": "montant_tva",
+              "type": "number",
+              "description": "Montant total de la TVA (nombre uniquement)."
+            },
+            {
+              "name": "montant_ttc",
+              "type": "number",
+              "description": "Montant total Toutes Taxes Comprises (nombre uniquement).",
+              "required": true
+            },
+            {
+              "name": "devise",
+              "description": "La devise de la facture (ex: EUR)."
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.informationExtractor",
+      "typeVersion": 1.2,
+      "position": [
+        2272,
+        -144
+      ],
+      "id": "01610369-c788-436d-92c6-6ba187d683b0",
+      "name": "Information Extractor",
+      "retryOnFail": true,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        2272,
+        16
+      ],
+      "id": "f9e4ae31-159c-49e2-9535-fab71c7bf347",
+      "name": "Google Gemini Chat Model1",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "C9f7nkveFo2vprMy",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "documentId": {
+          "__rl": true,
+          "value": "1juKCD7BXT-rFb_b3wr_rxo1VFVPaIg-naOfAKxewT1M",
+          "mode": "list",
+          "cachedResultName": "Comptabilité Vigneron",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1juKCD7BXT-rFb_b3wr_rxo1VFVPaIg-naOfAKxewT1M/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Feuille 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1juKCD7BXT-rFb_b3wr_rxo1VFVPaIg-naOfAKxewT1M/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "Valeur TTC"
+            }
+          ]
+        },
+        "options": {
+          "returnFirstMatch": true
+        }
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        2816,
+        -128
+      ],
+      "id": "4c2def2e-c60d-4ea0-bb0e-fbacdb9aa74f",
+      "name": "Get row(s) in sheet",
+      "retryOnFail": true,
+      "credentials": {
+        "googleApi": {
+          "id": "zDOJNAKCRckE4yFE",
+          "name": "service account Papa"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "operation": "analyze",
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.5-flash",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.5-flash"
+        },
+        "text": "Transcris tout le texte visible sur cette image, ligne par ligne, sans rien ajouter d'autre. Sois précis sur les chiffres.",
+        "inputType": "binary",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        1728,
+        -560
+      ],
+      "id": "752203b6-ee6c-4c88-acd6-2533268cfd72",
+      "name": "Analyze an image",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "C9f7nkveFo2vprMy",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "97c7dc51-154d-4152-a481-c4da2a49d495",
+              "name": "text",
+              "value": "={{ $json.content.parts[0].text }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1936,
+        -560
+      ],
+      "id": "e9df0d6f-f763-4d71-9333-297664a7eb62",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        912,
+        -224
+      ],
+      "id": "9b2e7c38-0665-4152-97b3-5623ce3c2fbd",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "resource": "fileFolder",
+        "searchMethod": "query",
+        "queryString": "'1zbSQJLJ08GiWphJGlvq6PwZYOVx1B35I' in parents and trashed = false",
+        "filter": {},
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        688,
+        -320
+      ],
+      "id": "08a46efa-352d-4886-8539-6ec56a2fc5d7",
+      "name": "Search files and folders",
+      "credentials": {
+        "googleApi": {
+          "id": "zDOJNAKCRckE4yFE",
+          "name": "service account Papa"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json.id }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1104,
+        -224
+      ],
+      "id": "b298b64f-9aef-4393-876e-ce7ca00304c5",
+      "name": "Download file",
+      "credentials": {
+        "googleApi": {
+          "id": "zDOJNAKCRckE4yFE",
+          "name": "service account Papa"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "operation": "move",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $('Download file').item.json.id }}",
+          "mode": "id"
+        },
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "1QDJU6dD_EC106EwYKl7y5ASBejIuWniQ",
+          "mode": "list",
+          "cachedResultName": "Factures erreurs_doublons",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1QDJU6dD_EC106EwYKl7y5ASBejIuWniQ"
+        }
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        2576,
+        0
+      ],
+      "id": "f8e66650-681a-4535-b09a-e03ca466795b",
+      "name": "Move to error/doublon ",
+      "credentials": {
+        "googleApi": {
+          "id": "zDOJNAKCRckE4yFE",
+          "name": "service account Papa"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "operation": "move",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $('Search files and folders').item.json.id }}",
+          "mode": "id"
+        },
+        "driveId": {
+          "__rl": true,
+          "value": "My Drive",
+          "mode": "list",
+          "cachedResultName": "My Drive",
+          "cachedResultUrl": "https://drive.google.com/drive/my-drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "1dFFtY494qGBQ_px0sVPosau6-ql0zvX2",
+          "mode": "list",
+          "cachedResultName": "Factures traitées",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1dFFtY494qGBQ_px0sVPosau6-ql0zvX2"
+        }
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        3248,
+        -16
+      ],
+      "id": "f6547310-e662-4fe9-861a-011a1e6130f3",
+      "name": "Move to facture traitée",
+      "credentials": {
+        "googleApi": {
+          "id": "zDOJNAKCRckE4yFE",
+          "name": "service account Papa"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "operation": "update",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json.id }}",
+          "mode": "id"
+        },
+        "newUpdatedFileName": "={{ $('Information Extractor').item.json.output.date }}-{{ $('Information Extractor').item.json.output.entite_principale }}-{{ $('Information Extractor').item.json.output.montant_ttc }}€",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        3488,
+        64
+      ],
+      "id": "1a412c9f-d312-4125-9bd8-3348d4071696",
+      "name": "change file name",
+      "credentials": {
+        "googleApi": {
+          "id": "zDOJNAKCRckE4yFE",
+          "name": "service account Papa"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1juKCD7BXT-rFb_b3wr_rxo1VFVPaIg-naOfAKxewT1M",
+          "mode": "list",
+          "cachedResultName": "Comptabilité Vigneron",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1juKCD7BXT-rFb_b3wr_rxo1VFVPaIg-naOfAKxewT1M/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Feuille 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1juKCD7BXT-rFb_b3wr_rxo1VFVPaIg-naOfAKxewT1M/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "row_number": "={{ $json.row_number }}",
+            "Numéro\nfacture": "={{ $('Information Extractor').item.json.output.numero_facture }}",
+            "Date\nFacture": "={{ $('Information Extractor').item.json.output.date }}",
+            "Entité": "={{ $('Information Extractor').item.json.output.entite_principale }}",
+            "Valeur HT": "={{ $('Information Extractor').item.json.output.montant_ht }}",
+            "Valeur TTC": "={{ $('Information Extractor').item.json.output.montant_ttc }}",
+            "TVA": "={{ $('Information Extractor').item.json.output.montant_tva }}",
+            "Débit/Crédit": "={{ $('Information Extractor').item.json.output.type_facture }}"
+          },
+          "matchingColumns": [
+            "row_number"
+          ],
+          "schema": [
+            {
+              "id": "Date Comptabilité",
+              "displayName": "Date Comptabilité",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Numéro\nfacture",
+              "displayName": "Numéro\nfacture",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Date\nFacture",
+              "displayName": "Date\nFacture",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Règlement \nespèce",
+              "displayName": "Règlement \nespèce",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Entité",
+              "displayName": "Entité",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Débit",
+              "displayName": "Débit",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Crédit",
+              "displayName": "Crédit",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Valeur TTC",
+              "displayName": "Valeur TTC",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Valeur HT",
+              "displayName": "Valeur HT",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "TVA",
+              "displayName": "TVA",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Catégorie",
+              "displayName": "Catégorie",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Sous-Catégorie",
+              "displayName": "Sous-Catégorie",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Débit/Crédit",
+              "displayName": "Débit/Crédit",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Solde \nRelevé de Compte",
+              "displayName": "Solde \nRelevé de Compte",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Autre commentaire",
+              "displayName": "Autre commentaire",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        3056,
+        -64
+      ],
+      "id": "690994db-25c0-4d21-bc3d-a0dbc435926f",
+      "name": "rentre les infos dans le gg sheet",
+      "credentials": {
+        "googleApi": {
+          "id": "zDOJNAKCRckE4yFE",
+          "name": "service account Papa"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        544,
+        -528
+      ],
+      "id": "663c1bf6-9147-4dfb-8258-639f66648abe",
+      "name": "Schedule Trigger"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Analyze an image",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Analyze an image",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Analyze an image",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "Information Extractor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Information Extractor",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Information Extractor": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Move to error/doublon ",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "rentre les infos dans le gg sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analyze an image": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Information Extractor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Download file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search files and folders": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download file": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Move to error/doublon ": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Move to facture traitée": {
+      "main": [
+        [
+          {
+            "node": "change file name",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "change file name": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "rentre les infos dans le gg sheet": {
+      "main": [
+        [
+          {
+            "node": "Move to facture traitée",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Search files and folders",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "7bdd2247-b109-46ce-b080-c704a8096ab6",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "ef79ca63c5222b2ff1aeeb77ad0abd6412c28e592e736c985ea0a76027dc2d45"
+  },
+  "id": "kSSb4Y19MRNIHpY1",
+  "tags": []
+}
